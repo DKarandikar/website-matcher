@@ -1,6 +1,18 @@
+from urllib.parse import urlparse
 from urllib.request import urlopen
 
+import googlesearch
 from bs4 import BeautifulSoup
+
+
+def get_company_url(name: str) -> str | None:
+    for url in googlesearch.search(name):
+        domain = urlparse(url).netloc
+
+        if name.lower() in domain.lower():
+            return url
+
+    return None
 
 
 def get_site_text(url: str):
