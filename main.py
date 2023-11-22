@@ -7,12 +7,13 @@ from store.base import Store
 from store.disk import OnDiskStore
 
 model_name = 'allenai-specter'
+data_dir = 'cos_data'
 
 model = SentenceTransformer(model_name)
 
 
 def get_match_matrix(urls: list[str], store: Store):
-    storedValues = []
+    stored_values = []
 
     for url in urls:
         stored = store.ensure_url(url)
@@ -23,9 +24,9 @@ def get_match_matrix(urls: list[str], store: Store):
         if stored.embedding is None:
             stored = store.save_embedding(url, model.encode(stored.text, convert_to_tensor=True))
 
-        storedValues.append(stored)
+        stored_values.append(stored)
 
-    combinations = itertools.combinations(storedValues, 2)
+    combinations = itertools.combinations(stored_values, 2)
 
     rv = []
     for combo in combinations:
@@ -39,7 +40,7 @@ def get_match_matrix(urls: list[str], store: Store):
 
 
 def main():
-    store = OnDiskStore(model_name)
+    store = OnDiskStore(model_name, data_dir)
 
     urls = ["https://www.revolut.com", "https://www.monzo.com", "https://www.bbc.co.uk"]
 
