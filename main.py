@@ -9,7 +9,11 @@ from store.disk import OnDiskStore
 model_name = 'allenai-specter'
 data_dir = 'cos_data'
 
-model = SentenceTransformer(model_name)
+model_cache = {}
+
+
+def get_model(name: str):
+    return model_cache.setdefault(name, SentenceTransformer(name))
 
 
 def get_match_matrix(urls: list[str], store: Store):
@@ -22,7 +26,7 @@ def get_match_matrix(urls: list[str], store: Store):
             stored = store.save_text(url, get_site_text(url))
 
         if stored.embedding is None:
-            stored = store.save_embedding(url, model.encode(stored.text, convert_to_tensor=True))
+            stored = store.save_embedding(url, get_model(model_name).encode(stored.text, convert_to_tensor=True))
 
         stored_values.append(stored)
 
