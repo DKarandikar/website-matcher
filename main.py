@@ -1,4 +1,5 @@
 import itertools
+from statistics import mean
 
 from sentence_transformers import SentenceTransformer, util
 
@@ -36,7 +37,7 @@ def populate_company_data(name: str, store: Store) -> StoredValue:
     return stored
 
 
-def get_match_matrix(names: list[str], store: Store):
+def get_match_score(names: list[str], store: Store):
     stored_values = []
     lower_names = [x.lower() for x in names]
 
@@ -50,18 +51,19 @@ def get_match_matrix(names: list[str], store: Store):
         rv.append({
             "url1": combo[0].url,
             "url2": combo[1].url,
-            "value": util.cos_sim(combo[0].embedding, combo[1].embedding),
+            "value": util.cos_sim(combo[0].embedding, combo[1].embedding).item(),
         })
 
-    return rv
+    return mean([x["value"] for x in rv])
 
 
 def main():
     store = OnDiskStore(model_name, data_dir)
 
-    urls = ["Revolut", "Monzo", "BBC", "HSBC", "OpenAI"]
-
-    print(get_match_matrix(urls, store))
+    print(get_match_score(["Revolut", "Monzo", "BBC", "HSBC", "OpenAI"], store))
+    print(get_match_score(["Revolut", "Monzo", "HSBC"], store))
+    print(get_match_score(["BBC", "OpenAI"], store))
+    print(get_match_score(["Revolut", "Monzo"], store))
 
 
 if __name__ == "__main__":
