@@ -17,6 +17,7 @@ def get_model(name: str):
 
 
 def populate_company_data(name: str, store: Store) -> StoredValue:
+    name = name.lower()  # To be sure
     stored = store.ensure_name(name)
 
     url = stored.url
